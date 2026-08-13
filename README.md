@@ -1,7 +1,7 @@
 <h1 align="center">Hi, I'm Nam Dao 👋</h1>
 
 <p align="center">
-  <b>AI & Full-Stack Engineer</b> · Los Angeles<br/>
+  <b>AI Engineer</b> · Los Angeles<br/>
   Previously @ NGINX · Rescale · Nintendo
 </p>
 
@@ -12,22 +12,7 @@
 
 ---
 
-I build **LLM and audio systems**, and I evaluate them properly: held-out splits that
-don't leak, a baseline I have to beat before claiming anything, and the results that went
-the wrong way reported rather than buried.
-
-- 🧪 **Focus:** retrieval, synthetic data, honest evals, and fine-tuning you can repeat
-- 🎧 **Niche:** AI for music production
-- 🌐 **Portfolio & blog:** [metzgerdev.github.io/Drum-Machine](https://metzgerdev.github.io/Drum-Machine/#/home)
-
-### How I evaluate
-
-- **Split so it can't leak.** Speaker-disjoint splits for audio, held-out conditioning for
-  generative models — not a random shuffle over correlated samples.
-- **Beat a baseline, not a vacuum.** Every number below is next to the thing it beat, and
-  the cost it paid to win.
-- **Report what failed.** Post-hoc calibration that made calibration worse, a GPU slower
-  than the CPU, a preference method whose effect I couldn't distinguish from noise.
+I build **LLM systems** with a niche in audio applications.
 
 ---
 
@@ -47,50 +32,56 @@ the wrong way reported rather than buried.
 
 ### 🚀 Featured
 
-#### [midi_gpt](https://github.com/metzgerdev/midi_gpt) — a 0.687M-parameter language model that composes UK garage MIDI
+#### [midi_gpt](https://github.com/metzgerdev/midi_gpt) — a small language model that generates MIDI
 
-**Conditioning does the work, so the model can be tiny.** It emits one token per sixteenth
-note — a pitch, a sustain, or a rest, 65 symbols in all — and at every step receives two
-things it never has to infer: a kick-pocket grid lifted from a drum loop, and the current
-chord as a 12-dimensional pitch-class mask. I train it from scratch on a mined MIDI corpus
-where every phrase appears in all twelve keys with notes and chord rotated together, which
-makes absolute pitch carry zero information: reading the chord track is the only way to
-lower the loss. Then I tune it to my taste — I edit the output in Ableton and DPO learns
-the gap between what it wrote and what I kept.
+I built a small language model, GPT-2 transformer architecture, that generates MIDI from a
+drum loop and a key as the prompt. I trained it on a corpus of MIDI patterns from house and
+UK garage. The corpus was expanded deterministically to generate additional synthetic data
+for training: every phrase is transposed through all twelve keys with its chord track
+rotated to match. That multiplies the data twelvefold, and it also means absolute pitch
+carries no information, so the model has to read the chord conditioning rather than
+memorize pitch. I then performed SFT and DPO to fine-tune the model to my personal taste,
+and a DPO script is provided so the end user can perform additional fine-tuning.
 
-*What didn't work:* MPS ran **10× slower than CPU** (632 ms vs 60 ms per candidate) — the
-tensors are too small to amortize launch overhead. And DPO's effect on generation sat
-**inside seed noise** at 16 preference pairs, measured against a noise floor built by
-half-splitting the model's own samples; the in-sample reward margin looked excellent and
+Because MIDI is a compact symbolic representation of music, the model is small enough to
+run inference on CPU in a couple of seconds. It is 0.687M parameters and writes eight bars
+in about 4.5 seconds.
+
+Two things did not work. MPS ran 10× slower than CPU, 632 ms against 60 ms per candidate,
+because the tensors are too small to amortize launch overhead. And at 16 preference pairs
+the effect of DPO on generation stayed inside seed noise, measured against a floor built by
+half-splitting the model's own output. The in-sample reward margin looked excellent and
 meant nothing.
 
-Eight bars in ~4.5 s on a laptop CPU. [Pipeline diagram](https://github.com/metzgerdev/midi_gpt/blob/main/pipeline.html) · `uv sync --frozen && uv run python make_track.py`
+[Pipeline diagram](https://github.com/metzgerdev/midi_gpt/blob/main/pipeline.html) · `uv sync --frozen && uv run python make_track.py`
 <sub>Python · PyTorch · mido · librosa · uv</sub>
 
-#### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — controlled two-stage fine-tune on RAVDESS
+#### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — two-stage fine-tune for vocal emotion
 
-**Partial fine-tuning lifts test macro-F1 from 0.48 to 0.61 (UAR 0.49 → 0.61)** on
-speaker-disjoint splits, with no actor appearing in more than one split. Stage one trains
-only the classifier head on a frozen `microsoft/wavlm-base-plus`; stage two unfreezes the
-top 2 of 12 transformer blocks with discriminative learning rates. The change fixes 42
-held-out clips against 7 regressions, so the gain isn't a wash of trades.
+I fine-tuned `microsoft/wavlm-base-plus` to classify vocal emotion on RAVDESS, in two
+stages on speaker-disjoint splits so no actor appears in more than one split. The first
+stage trains only the classifier head on a frozen encoder. The second unfreezes the top 2
+of 12 transformer blocks with discriminative learning rates. Test macro-F1 goes from 0.48
+to 0.61 and UAR from 0.49 to 0.61, fixing 42 held-out clips against 7 regressions, so the
+gain is not a wash of trades.
 
-*What didn't work:* I fit post-hoc temperature scaling on validation, evaluated it on the
-held-out test — and **rejected it, because it made calibration worse**. Checkpoints are
-selected on validation macro-F1 only, never on test.
+I also fit post-hoc temperature scaling on validation and evaluated it on the held-out
+test, then rejected it because it made calibration worse. Checkpoints are selected on
+validation macro-F1, never on test.
 
 [Fine-tune writeup](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/partial_finetune.md) · [calibration result](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/calibration.md) · [baseline](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/baseline.md)
 <sub>Python · PyTorch · WavLM · Hugging Face · scikit-learn · SciPy · uv</sub>
 
-#### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — full-factorial retrieval bench on long documents
+#### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — a retrieval test bench for long documents
 
-**Dense retrieval reaches recall@5 0.84, against 0.70 hybrid and 0.58 BM25 — and pays 50×
-the latency for it** (413 ms vs 8 ms). I run all 27 combinations of 3 chunking strategies
-(sentence, sliding-window, semantic) × 3 embeddings (`text-embedding-3-large`,
-`bge-large`, `bge-small`) × 3 retrieval methods (BM25, dense, hybrid/RRF) over SEC 10-Ks,
-scoring Recall@K, Precision@K, MRR, MAP, nDCG and latency. The interesting result is the
-trade, not the winner: `bge-large` needs no API and answers in **110 ms at recall 0.76**,
-which is the configuration I'd actually ship.
+I built a test bench for retrieval on long documents like SEC 10-Ks. It runs all 27
+combinations of 3 chunking strategies (sentence, sliding-window, semantic), 3 embeddings
+(`text-embedding-3-large`, `bge-large`, `bge-small`) and 3 retrieval methods (BM25, dense,
+hybrid/RRF), scoring Recall@K, Precision@K, MRR, MAP, nDCG and latency.
+
+Dense retrieval reaches recall@5 of 0.84, against 0.70 for hybrid and 0.58 for BM25, and
+pays 50× the latency for it, 413 ms against 8 ms. The configuration I would actually ship
+is `bge-large`: no API, 110 ms, recall 0.76.
 
 [Full results grid](https://github.com/metzgerdev/rag-pipeline/blob/main/grid_results.csv) (27 configurations) · [notebook](https://github.com/metzgerdev/rag-pipeline/blob/main/pipeline.ipynb)
 <sub>Python · FAISS · OpenAI text-embedding-3-large · BGE-large · BM25 · Jupyter</sub>

@@ -12,11 +12,22 @@
 
 ---
 
-I build **LLM systems** — RAG pipelines, synthetic data generators, and tools that grade model output (LLM-as-a-judge). I also train and fine-tune **audio and music models** — including a small language model that composes MIDI.
+I build **LLM and audio systems**, and I evaluate them properly: held-out splits that
+don't leak, a baseline I have to beat before claiming anything, and the results that went
+the wrong way reported rather than buried.
 
-- 🧪 **Focus:** better retrieval, clean synthetic data, honest evals, and fine-tuning you can repeat
+- 🧪 **Focus:** retrieval, synthetic data, honest evals, and fine-tuning you can repeat
 - 🎧 **Niche:** AI for music production
 - 🌐 **Portfolio & blog:** [metzgerdev.github.io/Drum-Machine](https://metzgerdev.github.io/Drum-Machine/#/home)
+
+### How I evaluate
+
+- **Split so it can't leak.** Speaker-disjoint splits for audio, held-out conditioning for
+  generative models — not a random shuffle over correlated samples.
+- **Beat a baseline, not a vacuum.** Every number below is next to the thing it beat, and
+  the cost it paid to win.
+- **Report what failed.** Post-hoc calibration that made calibration worse, a GPU slower
+  than the CPU, a preference method whose effect I couldn't distinguish from noise.
 
 ---
 
@@ -34,28 +45,66 @@ I build **LLM systems** — RAG pipelines, synthetic data generators, and tools 
 
 ---
 
-### 🚀 Featured Projects
+### 🚀 Featured
 
-| Project | What it does |
-|---|---|
-| **[midi_gpt](https://github.com/metzgerdev/midi_gpt)** | A small language model that writes UK garage bass and melody as MIDI. It emits one token per sixteenth note — a pitch, a sustain, or a rest, 65 symbols in all — and at every step it is handed two things it never has to infer: a kick-pocket grid lifted from a drum loop, and the current chord as a 12-dimensional pitch-class mask. That split is why 0.687M parameters is enough; the model only chooses notes inside a rhythm and a harmony it is given. I train it from scratch on a mined MIDI corpus in which every phrase appears in all twelve keys with the notes and the chord rotated together, so absolute pitch carries no information and reading the chord track is the only way to lower the loss. Then I tune it to my taste: I edit the generated MIDI in Ableton, and DPO learns the difference between what it wrote and what I kept. Every run grades itself on chord-tone fit and kick-lock (0.78 and 0.87 on the shipped checkpoints) and writes its own folder. Eight bars in about 4.5s on a laptop CPU. The output is symbolic — the notes are the model's, the sound is my synths.<br><br>🧰 **Stack:** Python · PyTorch · mido · librosa · uv |
-| **[rag-pipeline-research](https://github.com/metzgerdev/rag-pipeline-research)** | RAG over arXiv papers, tested on `open_ragbench`. It compares three ways to retrieve — keyword (BM25), dense (BGE/E5), and hybrid — at two levels: which paper, and which section. Hybrid finds the right paper every time (recall@10 = 1.0); dense search wins when I need the exact section. Each answer cites its sources with a confidence score, and an LLM judge grades it on relevance, accuracy, completeness, and citations. Runs from the command line (ingest / serve / eval) or a Streamlit page.<br><br>🧰 **Stack:** Python · FAISS · BGE / E5 embeddings · BM25 · OpenAI / OpenRouter · Pydantic · Streamlit |
-| **[synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline)** | A six-stage pipeline that writes and checks synthetic DIY-repair Q&A: Generate → Quality Gate → Human Review → LLM Judge → Analysis → Iterate. Llama-3.3-70B writes each item to a Pydantic schema, and semantic dedup drops near-copies. Seven automated checks and a six-point pass/fail rubric (completeness, safety, tools, scope, clarity, usefulness) gate the rest. I tune a Llama-3.1-8B judge against human labels across four prompts until it agrees with people at least 80% of the time. Prompts live in SQLite, so I can edit them while it runs.<br><br>🧰 **Stack:** Python · Groq (Llama 3.3 70B / 3.1 8B) · Pydantic · sentence-transformers · SQLite · Streamlit · Matplotlib |
-| **[rag-pipeline](https://github.com/metzgerdev/rag-pipeline)** | A test bench for RAG on long documents like SEC 10-Ks. It runs every mix of 3 ways to split text (sentence, sliding-window, semantic) and 4 ways to retrieve (BM25, dense, hybrid/RRF, LLM-reranked), then reports Recall@K, Precision@K, MRR, MAP, nDCG, and speed. `text-embedding-3-large` with dense search scores best (Recall@5 0.84 at ~410ms). `bge-large` needs no API and answers in ~110ms (Recall@5 0.70–0.76).<br><br>🧰 **Stack:** Python · FAISS · OpenAI `text-embedding-3-large` · BGE-large · BM25 · Jupyter |
-| **[llm-resume-coach](https://github.com/metzgerdev/llm-resume-coach)** | Scores how well a resume fits a job. Two scorers run side by side on the same six measures: a fixed-rule labeler you can check by hand (Jaccard skill overlap, years-of-experience gap, seniority rank) and an LLM judge. Together they show exactly where the rules and the model disagree. An 11-point check catches bad data — broken timelines, odd GPAs, inflated "expert" claims. It also builds balanced test data across 5 industries and 5 fit levels, offers four prompts to compare, and logs every prompt or threshold change with before-and-after numbers.<br><br>🧰 **Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit |
-| **[vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune)** | Adapts `microsoft/wavlm-base-plus` to classify perceived vocal emotion on RAVDESS, as a controlled two-stage experiment on speaker-disjoint splits (no actor leaks across train/val/test). First a frozen-encoder baseline trains only the classifier head; then I unfreeze the top 2 of 12 transformer blocks with discriminative learning rates. Partial fine-tuning lifts test macro-F1 from 0.48 to 0.61 (UAR 0.49 → 0.61) and fixes 42 held-out clips against 7 regressions. I also fit post-hoc temperature scaling on validation and judge it on the held-out test — then reject it, because it worsened calibration. Checkpoints are picked by validation macro-F1, and every run writes its own metrics and report.<br><br>🧰 **Stack:** Python · PyTorch · WavLM · Hugging Face Transformers · scikit-learn · SciPy · uv |
-| **[MusicGen-Finetune](https://github.com/metzgerdev/MusicGen-Finetune)** | I fine-tune `facebook/musicgen-small` toward one production sound. The training set is 50–100 ten-second clips, each with a short, steady caption. The repo does the data work — raw audio to normalized clips to JSONL manifests — ready for AudioCraft's `MusicGenSolver`. I judge the result by ear, A/B against the base model.<br><br>🧰 **Stack:** Python · PyTorch · Meta AudioCraft · Hugging Face · MusicGen |
-| **[Drum-Machine](https://github.com/metzgerdev/Drum-Machine)** | My portfolio and blog, built as three Web Audio apps in React 19 and TypeScript (Vite, Bun, GraphQL/TanStack Query): a TR-909-style step sequencer, a small DAW to arrange patterns, and a music player. The player's VU meter uses K-weighting and RMS to match how loud a track feels, not just its peaks. The audio engine sits apart from React, so sample timing runs on the Web Audio clock and never waits for a render.<br><br>🧰 **Stack:** React 19 · TypeScript · Vite · Bun · GraphQL · TanStack Query · Web Audio API |
+#### [midi_gpt](https://github.com/metzgerdev/midi_gpt) — a 0.687M-parameter language model that composes UK garage MIDI
+
+**Conditioning does the work, so the model can be tiny.** It emits one token per sixteenth
+note — a pitch, a sustain, or a rest, 65 symbols in all — and at every step receives two
+things it never has to infer: a kick-pocket grid lifted from a drum loop, and the current
+chord as a 12-dimensional pitch-class mask. I train it from scratch on a mined MIDI corpus
+where every phrase appears in all twelve keys with notes and chord rotated together, which
+makes absolute pitch carry zero information: reading the chord track is the only way to
+lower the loss. Then I tune it to my taste — I edit the output in Ableton and DPO learns
+the gap between what it wrote and what I kept.
+
+*What didn't work:* MPS ran **10× slower than CPU** (632 ms vs 60 ms per candidate) — the
+tensors are too small to amortize launch overhead. And DPO's effect on generation sat
+**inside seed noise** at 16 preference pairs, measured against a noise floor built by
+half-splitting the model's own samples; the in-sample reward margin looked excellent and
+meant nothing.
+
+Eight bars in ~4.5 s on a laptop CPU. [Pipeline diagram](https://github.com/metzgerdev/midi_gpt/blob/main/pipeline.html) · `uv sync --frozen && uv run python make_track.py`
+<sub>Python · PyTorch · mido · librosa · uv</sub>
+
+#### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — controlled two-stage fine-tune on RAVDESS
+
+**Partial fine-tuning lifts test macro-F1 from 0.48 to 0.61 (UAR 0.49 → 0.61)** on
+speaker-disjoint splits, with no actor appearing in more than one split. Stage one trains
+only the classifier head on a frozen `microsoft/wavlm-base-plus`; stage two unfreezes the
+top 2 of 12 transformer blocks with discriminative learning rates. The change fixes 42
+held-out clips against 7 regressions, so the gain isn't a wash of trades.
+
+*What didn't work:* I fit post-hoc temperature scaling on validation, evaluated it on the
+held-out test — and **rejected it, because it made calibration worse**. Checkpoints are
+selected on validation macro-F1 only, never on test.
+
+[Fine-tune writeup](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/partial_finetune.md) · [calibration result](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/calibration.md) · [baseline](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/baseline.md)
+<sub>Python · PyTorch · WavLM · Hugging Face · scikit-learn · SciPy · uv</sub>
+
+#### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — full-factorial retrieval bench on long documents
+
+**Dense retrieval reaches recall@5 0.84, against 0.70 hybrid and 0.58 BM25 — and pays 50×
+the latency for it** (413 ms vs 8 ms). I run all 27 combinations of 3 chunking strategies
+(sentence, sliding-window, semantic) × 3 embeddings (`text-embedding-3-large`,
+`bge-large`, `bge-small`) × 3 retrieval methods (BM25, dense, hybrid/RRF) over SEC 10-Ks,
+scoring Recall@K, Precision@K, MRR, MAP, nDCG and latency. The interesting result is the
+trade, not the winner: `bge-large` needs no API and answers in **110 ms at recall 0.76**,
+which is the configuration I'd actually ship.
+
+[Full results grid](https://github.com/metzgerdev/rag-pipeline/blob/main/grid_results.csv) (27 configurations) · [notebook](https://github.com/metzgerdev/rag-pipeline/blob/main/pipeline.ipynb)
+<sub>Python · FAISS · OpenAI text-embedding-3-large · BGE-large · BM25 · Jupyter</sub>
 
 ---
 
-<details>
-<summary>📊 GitHub Stats</summary>
-<br/>
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=metzgerdev&show_icons=true&hide_border=true&theme=default" alt="GitHub stats" height="165"/>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=metzgerdev&layout=compact&hide_border=true&theme=default" alt="Top languages" height="165"/>
-</p>
-</details>
+### Also
 
-<p align="center"><i>Open to applied LLM and audio-AI work.</i></p>
+- **[rag-pipeline-research](https://github.com/metzgerdev/rag-pipeline-research)** — RAG over arXiv papers on `open_ragbench`, comparing keyword, dense and hybrid retrieval at both paper and section level. Hybrid finds the right paper every time (recall@10 = 1.0); dense wins on locating the exact section. Answers cite sources with a confidence score, graded by an LLM judge.
+- **[synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline)** — six stages from generation to iteration for synthetic DIY-repair Q&A. Seven automated checks plus a six-point rubric gate the output, and I tune a Llama-3.1-8B judge against human labels across four prompts until it agrees with people ≥80% of the time.
+- **[llm-resume-coach](https://github.com/metzgerdev/llm-resume-coach)** — scores resume/job fit with two scorers side by side: a hand-checkable rule labeler (Jaccard skill overlap, experience gap, seniority rank) and an LLM judge, so you can see exactly where they disagree. Logs every prompt and threshold change with before-and-after numbers.
+- **[MusicGen-Finetune](https://github.com/metzgerdev/MusicGen-Finetune)** — fine-tunes `facebook/musicgen-small` toward one production sound on 50–100 captioned clips, with the raw-audio-to-JSONL data path ready for AudioCraft's `MusicGenSolver`. Judged by ear, A/B against base.
+- **[Drum-Machine](https://github.com/metzgerdev/Drum-Machine)** — my portfolio and blog: three Web Audio apps in React 19 and TypeScript. The audio engine sits outside React so sample timing runs on the Web Audio clock and never waits for a render.
+
+---
+
+<p align="center"><i>Looking for applied LLM or audio-ML work — model evaluation, fine-tuning pipelines, and generative audio tooling.</i></p>

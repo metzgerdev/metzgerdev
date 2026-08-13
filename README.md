@@ -30,7 +30,6 @@ I build **LLM systems** with a niche in audio applications.
 
 ---
 
-
 #### [midi_gpt](https://github.com/metzgerdev/midi_gpt) — a small language model that generates MIDI
 
 I built a small language model, GPT-2 transformer architecture, that generates MIDI from a
@@ -43,37 +42,26 @@ memorize pitch. I then performed SFT and DPO to fine-tune the model to my person
 and a DPO script is provided so the end user can perform additional fine-tuning.
 
 Because MIDI is a compact symbolic representation of music, the model is small enough to
-run inference on CPU in a couple of seconds. It is 0.687M parameters and writes eight bars
+run inference on CPU in a couple of seconds. It has 0.687M parameters and writes eight bars
 in about 4.5 seconds.
-
-Two things did not work. MPS ran 10× slower than CPU, 632 ms against 60 ms per candidate,
-because the tensors are too small to amortize launch overhead. And at 16 preference pairs
-the effect of DPO on generation stayed inside seed noise, measured against a floor built by
-half-splitting the model's own output. The in-sample reward margin looked excellent and
-meant nothing.
 
 **Tech Stack:** Python · PyTorch · mido · librosa · NumPy · SciPy · uv
 
 #### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — two-stage fine-tune for vocal emotion
 
-I fine-tuned `microsoft/wavlm-base-plus` to classify vocal emotion on RAVDESS, in two
-stages on speaker-disjoint splits so no actor appears in more than one split. The first
+I built a vocal emotion classifier by fine-tuning `microsoft/wavlm-base-plus` in two stages. The first
 stage trains only the classifier head on a frozen encoder. The second unfreezes the top 2
 of 12 transformer blocks with discriminative learning rates. Test macro-F1 goes from 0.48
 to 0.61 and UAR from 0.49 to 0.61, fixing 42 held-out clips against 7 regressions, so the
 gain is not a wash of trades.
 
-I also fit post-hoc temperature scaling on validation and evaluated it on the held-out
-test, then rejected it because it made calibration worse. Checkpoints are selected on
-validation macro-F1, never on test.
-
 **Tech Stack:** Python · PyTorch · WavLM · Hugging Face Transformers · scikit-learn · SciPy · uv
 
 #### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — a retrieval test bench for long documents
 
-I built a test bench for retrieval on long documents like SEC 10-Ks. It runs all 27
-combinations of 3 chunking strategies (sentence, sliding-window, semantic), 3 embeddings
-(`text-embedding-3-large`, `bge-large`, `bge-small`) and 3 retrieval methods (BM25, dense,
+I built a RAG pipeline for retrieval of long documents like SEC 10-Ks. I ran 27
+experiments across combinations of chunking strategies (sentence, sliding-window, semantic), embeddings
+(`text-embedding-3-large`, `bge-large`, `bge-small`) and retrieval methods (BM25, dense,
 hybrid/RRF), scoring Recall@K, Precision@K, MRR, MAP, nDCG and latency.
 
 Dense retrieval reaches recall@5 of 0.84, against 0.70 for hybrid and 0.58 for BM25, and
@@ -101,13 +89,13 @@ the one to run.
 #### [synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline) — synthetic Q&A with a calibrated judge
 
 I built a six-stage pipeline that writes and checks synthetic DIY-repair Q&A: generate,
-quality gate, human review, LLM judge, analysis, iterate. Llama-3.3-70B writes each item
+quality gate, human review, LLM judge, analysis, iterate. Llama 3.3 70B writes each item
 against a Pydantic schema and semantic dedup drops the near-copies. Seven automated checks
 and six binary dimensions — completeness, safety, tools, scope, clarity, usefulness — gate
 what survives.
 
 The part that matters is the judge. I label a sample by hand first, then tune a
-Llama-3.1-8B judge across four prompt variants until it agrees with my labels on at least
+Llama 3.1 8B judge across four prompt variants until it agrees with my labels on at least
 80% of every dimension, not just on average, because a judge that is right overall can
 still be wrong on the one dimension I care about. Prompts live in SQLite so I can edit
 them while the pipeline runs.
@@ -128,5 +116,3 @@ fit levels so the evaluation is not weighted toward the easy cases, and every pr
 threshold change is logged with before-and-after numbers.
 
 **Tech Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit
-
-

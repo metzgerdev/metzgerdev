@@ -54,6 +54,7 @@ half-splitting the model's own output. The in-sample reward margin looked excell
 meant nothing.
 
 [Pipeline diagram](https://github.com/metzgerdev/midi_gpt/blob/main/pipeline.html) · `uv sync --frozen && uv run python make_track.py`
+
 **Tech Stack:** Python · PyTorch · mido · librosa · NumPy · SciPy · uv
 
 #### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — two-stage fine-tune for vocal emotion
@@ -70,6 +71,7 @@ test, then rejected it because it made calibration worse. Checkpoints are select
 validation macro-F1, never on test.
 
 [Fine-tune writeup](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/partial_finetune.md) · [calibration result](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/calibration.md) · [baseline](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/baseline.md)
+
 **Tech Stack:** Python · PyTorch · WavLM · Hugging Face Transformers · scikit-learn · SciPy · uv
 
 #### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — a retrieval test bench for long documents
@@ -84,6 +86,7 @@ pays 50× the latency for it, 413 ms against 8 ms. The configuration I would act
 is `bge-large`: no API, 110 ms, recall 0.76.
 
 [Full results grid](https://github.com/metzgerdev/rag-pipeline/blob/main/grid_results.csv) (27 configurations) · [notebook](https://github.com/metzgerdev/rag-pipeline/blob/main/pipeline.ipynb)
+
 **Tech Stack:** Python · FAISS · OpenAI `text-embedding-3-large` · BGE-large · BM25 · Jupyter
 
 ---

@@ -30,7 +30,6 @@ I build **LLM systems** with a niche in audio applications.
 
 ---
 
-### 🚀 Featured
 
 #### [midi_gpt](https://github.com/metzgerdev/midi_gpt) — a small language model that generates MIDI
 
@@ -53,8 +52,6 @@ the effect of DPO on generation stayed inside seed noise, measured against a flo
 half-splitting the model's own output. The in-sample reward margin looked excellent and
 meant nothing.
 
-[Pipeline diagram](https://github.com/metzgerdev/midi_gpt/blob/main/pipeline.html) · `uv sync --frozen && uv run python make_track.py`
-
 **Tech Stack:** Python · PyTorch · mido · librosa · NumPy · SciPy · uv
 
 #### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — two-stage fine-tune for vocal emotion
@@ -70,8 +67,6 @@ I also fit post-hoc temperature scaling on validation and evaluated it on the he
 test, then rejected it because it made calibration worse. Checkpoints are selected on
 validation macro-F1, never on test.
 
-[Fine-tune writeup](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/partial_finetune.md) · [calibration result](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/calibration.md) · [baseline](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/baseline.md)
-
 **Tech Stack:** Python · PyTorch · WavLM · Hugging Face Transformers · scikit-learn · SciPy · uv
 
 #### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — a retrieval test bench for long documents
@@ -84,8 +79,6 @@ hybrid/RRF), scoring Recall@K, Precision@K, MRR, MAP, nDCG and latency.
 Dense retrieval reaches recall@5 of 0.84, against 0.70 for hybrid and 0.58 for BM25, and
 pays 50× the latency for it, 413 ms against 8 ms. The configuration I would actually ship
 is `bge-large`: no API, 110 ms, recall 0.76.
-
-[Full results grid](https://github.com/metzgerdev/rag-pipeline/blob/main/grid_results.csv) (27 configurations) · [notebook](https://github.com/metzgerdev/rag-pipeline/blob/main/pipeline.ipynb)
 
 **Tech Stack:** Python · FAISS · OpenAI `text-embedding-3-large` · BGE-large · BM25 · Jupyter
 
@@ -103,8 +96,6 @@ differences only appear once I ask which section. The finding worth keeping is a
 `bge-small` matches `bge-large` at 18 ms per query against 40 ms, so the smaller model is
 the one to run.
 
-[Comparison analysis](https://github.com/metzgerdev/rag-pipeline-research/blob/main/experiments/comparison.md) · [raw results](https://github.com/metzgerdev/rag-pipeline-research/tree/main/experiments/results)
-
 **Tech Stack:** Python · FAISS · BGE / E5 embeddings · BM25 · OpenAI / OpenRouter · Pydantic · Streamlit
 
 #### [synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline) — synthetic Q&A with a calibrated judge
@@ -121,8 +112,6 @@ Llama-3.1-8B judge across four prompt variants until it agrees with my labels on
 still be wrong on the one dimension I care about. Prompts live in SQLite so I can edit
 them while the pipeline runs.
 
-[Judge](https://github.com/metzgerdev/synthetic-data-pipeline/blob/main/judge.py) · [quality gate](https://github.com/metzgerdev/synthetic-data-pipeline/blob/main/gate.py)
-
 **Tech Stack:** Python · Groq (Llama 3.3 70B / 3.1 8B) · Pydantic · sentence-transformers · SQLite · Streamlit · Matplotlib
 
 #### [llm-resume-coach](https://github.com/metzgerdev/llm-resume-coach) — two scorers on the same rubric
@@ -138,20 +127,6 @@ GPAs, inflated expertise claims. The test set is generated evenly across 5 indus
 fit levels so the evaluation is not weighted toward the easy cases, and every prompt or
 threshold change is logged with before-and-after numbers.
 
-[Deterministic labeler](https://github.com/metzgerdev/llm-resume-coach/blob/main/labeler.py) · [LLM judge](https://github.com/metzgerdev/llm-resume-coach/blob/main/judge.py)
-
 **Tech Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit
 
----
 
-### Also
-
-
-- **[MusicGen-Finetune](https://github.com/metzgerdev/MusicGen-Finetune)** — fine-tunes `facebook/musicgen-small` toward one production sound on 50–100 captioned clips, with the raw-audio-to-JSONL data path ready for AudioCraft's `MusicGenSolver`. Judged by ear, A/B against base.
-  <br>**Tech Stack:** Python · PyTorch · Meta AudioCraft · Hugging Face · MusicGen
-- **[Drum-Machine](https://github.com/metzgerdev/Drum-Machine)** — my portfolio and blog: three Web Audio apps in React 19 and TypeScript. The audio engine sits outside React so sample timing runs on the Web Audio clock and never waits for a render.
-  <br>**Tech Stack:** React 19 · TypeScript · Vite · Bun · GraphQL · TanStack Query · Web Audio API
-
----
-
-<p align="center"><i>Looking for applied LLM or audio-ML work — model evaluation, fine-tuning pipelines, and generative audio tooling.</i></p>

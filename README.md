@@ -35,10 +35,7 @@ I build **LLM systems** with a niche in audio applications.
 I built a small language model, GPT-2 transformer architecture, that generates MIDI from a
 drum loop and a key as the prompt. I trained it on a corpus of MIDI patterns from house and
 UK garage. The corpus was expanded deterministically to generate additional synthetic data
-for training: every phrase is transposed through all twelve keys with its chord track
-rotated to match. That multiplies the data twelvefold, and it also means absolute pitch
-carries no information, so the model has to read the chord conditioning rather than
-memorize pitch. I then performed SFT and DPO to fine-tune the model to my personal taste,
+for training. I then performed SFT and DPO to fine-tune the model to my personal taste,
 and a DPO script is provided so the end user can perform additional fine-tuning.
 
 Because MIDI is a compact symbolic representation of music, the model is small enough to

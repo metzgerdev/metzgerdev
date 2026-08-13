@@ -54,7 +54,7 @@ half-splitting the model's own output. The in-sample reward margin looked excell
 meant nothing.
 
 [Pipeline diagram](https://github.com/metzgerdev/midi_gpt/blob/main/pipeline.html) · `uv sync --frozen && uv run python make_track.py`
-<sub>Python · PyTorch · mido · librosa · uv</sub>
+**Tech Stack:** Python · PyTorch · mido · librosa · NumPy · SciPy · uv
 
 #### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — two-stage fine-tune for vocal emotion
 
@@ -70,7 +70,7 @@ test, then rejected it because it made calibration worse. Checkpoints are select
 validation macro-F1, never on test.
 
 [Fine-tune writeup](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/partial_finetune.md) · [calibration result](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/calibration.md) · [baseline](https://github.com/metzgerdev/vocal-emotion-finetune/blob/main/docs/baseline.md)
-<sub>Python · PyTorch · WavLM · Hugging Face · scikit-learn · SciPy · uv</sub>
+**Tech Stack:** Python · PyTorch · WavLM · Hugging Face Transformers · scikit-learn · SciPy · uv
 
 #### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — a retrieval test bench for long documents
 
@@ -84,17 +84,22 @@ pays 50× the latency for it, 413 ms against 8 ms. The configuration I would act
 is `bge-large`: no API, 110 ms, recall 0.76.
 
 [Full results grid](https://github.com/metzgerdev/rag-pipeline/blob/main/grid_results.csv) (27 configurations) · [notebook](https://github.com/metzgerdev/rag-pipeline/blob/main/pipeline.ipynb)
-<sub>Python · FAISS · OpenAI text-embedding-3-large · BGE-large · BM25 · Jupyter</sub>
+**Tech Stack:** Python · FAISS · OpenAI `text-embedding-3-large` · BGE-large · BM25 · Jupyter
 
 ---
 
 ### Also
 
 - **[rag-pipeline-research](https://github.com/metzgerdev/rag-pipeline-research)** — RAG over arXiv papers on `open_ragbench`, comparing keyword, dense and hybrid retrieval at both paper and section level. Hybrid finds the right paper every time (recall@10 = 1.0); dense wins on locating the exact section. Answers cite sources with a confidence score, graded by an LLM judge.
+  <br>**Tech Stack:** Python · FAISS · BGE / E5 embeddings · BM25 · OpenAI / OpenRouter · Pydantic · Streamlit
 - **[synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline)** — six stages from generation to iteration for synthetic DIY-repair Q&A. Seven automated checks plus a six-point rubric gate the output, and I tune a Llama-3.1-8B judge against human labels across four prompts until it agrees with people ≥80% of the time.
+  <br>**Tech Stack:** Python · Groq (Llama 3.3 70B / 3.1 8B) · Pydantic · sentence-transformers · SQLite · Streamlit · Matplotlib
 - **[llm-resume-coach](https://github.com/metzgerdev/llm-resume-coach)** — scores resume/job fit with two scorers side by side: a hand-checkable rule labeler (Jaccard skill overlap, experience gap, seniority rank) and an LLM judge, so you can see exactly where they disagree. Logs every prompt and threshold change with before-and-after numbers.
+  <br>**Tech Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit
 - **[MusicGen-Finetune](https://github.com/metzgerdev/MusicGen-Finetune)** — fine-tunes `facebook/musicgen-small` toward one production sound on 50–100 captioned clips, with the raw-audio-to-JSONL data path ready for AudioCraft's `MusicGenSolver`. Judged by ear, A/B against base.
+  <br>**Tech Stack:** Python · PyTorch · Meta AudioCraft · Hugging Face · MusicGen
 - **[Drum-Machine](https://github.com/metzgerdev/Drum-Machine)** — my portfolio and blog: three Web Audio apps in React 19 and TypeScript. The audio engine sits outside React so sample timing runs on the Web Audio clock and never waits for a render.
+  <br>**Tech Stack:** React 19 · TypeScript · Vite · Bun · GraphQL · TanStack Query · Web Audio API
 
 ---
 

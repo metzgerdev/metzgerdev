@@ -89,16 +89,64 @@ is `bge-large`: no API, 110 ms, recall 0.76.
 
 **Tech Stack:** Python · FAISS · OpenAI `text-embedding-3-large` · BGE-large · BM25 · Jupyter
 
+#### [rag-pipeline-research](https://github.com/metzgerdev/rag-pipeline-research) — RAG over arXiv papers
+
+I built a RAG assistant over arXiv papers and evaluated retrieval on `open_ragbench`. It
+runs 12 configurations, 3 chunking strategies × 2 embeddings × 2 retrievers, scored at two
+levels: which paper, and which section within that paper. Answers cite their sources with
+a confidence score, and an LLM judge grades each one from 1 to 5 on relevance, accuracy,
+completeness and citation quality.
+
+The paper-level task turned out to be saturated. All 12 configurations reach recall@5 of
+1.0 and hybrid ties dense exactly, so the grid cannot separate them at that level and the
+differences only appear once I ask which section. The finding worth keeping is about cost:
+`bge-small` matches `bge-large` at 18 ms per query against 40 ms, so the smaller model is
+the one to run.
+
+[Comparison analysis](https://github.com/metzgerdev/rag-pipeline-research/blob/main/experiments/comparison.md) · [raw results](https://github.com/metzgerdev/rag-pipeline-research/tree/main/experiments/results)
+
+**Tech Stack:** Python · FAISS · BGE / E5 embeddings · BM25 · OpenAI / OpenRouter · Pydantic · Streamlit
+
+#### [synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline) — synthetic Q&A with a calibrated judge
+
+I built a six-stage pipeline that writes and checks synthetic DIY-repair Q&A: generate,
+quality gate, human review, LLM judge, analysis, iterate. Llama-3.3-70B writes each item
+against a Pydantic schema and semantic dedup drops the near-copies. Seven automated checks
+and six binary dimensions — completeness, safety, tools, scope, clarity, usefulness — gate
+what survives.
+
+The part that matters is the judge. I label a sample by hand first, then tune a
+Llama-3.1-8B judge across four prompt variants until it agrees with my labels on at least
+80% of every dimension, not just on average, because a judge that is right overall can
+still be wrong on the one dimension I care about. Prompts live in SQLite so I can edit
+them while the pipeline runs.
+
+[Judge](https://github.com/metzgerdev/synthetic-data-pipeline/blob/main/judge.py) · [quality gate](https://github.com/metzgerdev/synthetic-data-pipeline/blob/main/gate.py)
+
+**Tech Stack:** Python · Groq (Llama 3.3 70B / 3.1 8B) · Pydantic · sentence-transformers · SQLite · Streamlit · Matplotlib
+
+#### [llm-resume-coach](https://github.com/metzgerdev/llm-resume-coach) — two scorers on the same rubric
+
+I built a scorer for how well a resume fits a job, with two scorers running side by side
+on the same six binary dimensions: a deterministic labeler you can check by hand, using
+Jaccard skill overlap, years-of-experience gap and seniority rank, and an LLM judge.
+Running both means every disagreement is visible and attributable to one of them, instead
+of trusting a single number.
+
+Eleven per-item checks catch bad data before any scoring — broken timelines, implausible
+GPAs, inflated expertise claims. The test set is generated evenly across 5 industries × 5
+fit levels so the evaluation is not weighted toward the easy cases, and every prompt or
+threshold change is logged with before-and-after numbers.
+
+[Deterministic labeler](https://github.com/metzgerdev/llm-resume-coach/blob/main/labeler.py) · [LLM judge](https://github.com/metzgerdev/llm-resume-coach/blob/main/judge.py)
+
+**Tech Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit
+
 ---
 
 ### Also
 
-- **[rag-pipeline-research](https://github.com/metzgerdev/rag-pipeline-research)** — RAG over arXiv papers on `open_ragbench`, comparing keyword, dense and hybrid retrieval at both paper and section level. Hybrid finds the right paper every time (recall@10 = 1.0); dense wins on locating the exact section. Answers cite sources with a confidence score, graded by an LLM judge.
-  <br>**Tech Stack:** Python · FAISS · BGE / E5 embeddings · BM25 · OpenAI / OpenRouter · Pydantic · Streamlit
-- **[synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline)** — six stages from generation to iteration for synthetic DIY-repair Q&A. Seven automated checks plus a six-point rubric gate the output, and I tune a Llama-3.1-8B judge against human labels across four prompts until it agrees with people ≥80% of the time.
-  <br>**Tech Stack:** Python · Groq (Llama 3.3 70B / 3.1 8B) · Pydantic · sentence-transformers · SQLite · Streamlit · Matplotlib
-- **[llm-resume-coach](https://github.com/metzgerdev/llm-resume-coach)** — scores resume/job fit with two scorers side by side: a hand-checkable rule labeler (Jaccard skill overlap, experience gap, seniority rank) and an LLM judge, so you can see exactly where they disagree. Logs every prompt and threshold change with before-and-after numbers.
-  <br>**Tech Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit
+
 - **[MusicGen-Finetune](https://github.com/metzgerdev/MusicGen-Finetune)** — fine-tunes `facebook/musicgen-small` toward one production sound on 50–100 captioned clips, with the raw-audio-to-JSONL data path ready for AudioCraft's `MusicGenSolver`. Judged by ear, A/B against base.
   <br>**Tech Stack:** Python · PyTorch · Meta AudioCraft · Hugging Face · MusicGen
 - **[Drum-Machine](https://github.com/metzgerdev/Drum-Machine)** — my portfolio and blog: three Web Audio apps in React 19 and TypeScript. The audio engine sits outside React so sample timing runs on the Web Audio clock and never waits for a render.

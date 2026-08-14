@@ -30,27 +30,23 @@ I build **LLM systems** with a niche in audio applications.
 
 ---
 
-#### [midi_gpt](https://github.com/metzgerdev/midi_gpt) — a small language model that generates MIDI
+#### [midi_gpt](https://github.com/metzgerdev/midi_gpt) — a small language model that generates MIDI for electronic music
 
-I built a small language model, GPT-2 transformer architecture, that generates MIDI from a
-drum loop and a key as the prompt. I trained it on a corpus of MIDI patterns from house and
+I built a small language model using a GPT-2 transformer architecture that generates MIDI from a
+drum loop and key as the prompt. The model is trained on a corpus of MIDI patterns from house and
 UK garage. The corpus was expanded deterministically to generate additional synthetic data
-for training. I then performed SFT and DPO to fine-tune the model to my personal taste,
-and a DPO script is provided so the end user can perform additional fine-tuning.
+for training. I then performed SFT and DPO to fine-tune the model to my personal taste.  A DPO script is provided so the end user can perform additional fine-tuning.
 
 Because MIDI is a compact symbolic representation of music, the model is small enough to
 run inference on CPU in a couple of seconds. It has 0.687M parameters and writes eight bars
-in about 4.5 seconds.
+in a few seconds.  A 1/16 note grid and drum conditioning results in a tight rythymic lock.
 
 **Tech Stack:** Python · PyTorch · mido · librosa · NumPy · SciPy · uv
 
 #### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — two-stage fine-tune for vocal emotion
 
 I built a vocal emotion classifier by fine-tuning `microsoft/wavlm-base-plus` in two stages. The first
-stage trains only the classifier head on a frozen encoder. The second unfreezes the top 2
-of 12 transformer blocks with discriminative learning rates. Test macro-F1 goes from 0.48
-to 0.61 and UAR from 0.49 to 0.61, fixing 42 held-out clips against 7 regressions, so the
-gain is not a wash of trades.
+stage trains only the classifier head on a frozen encoder, establishing the baseline. For the second stage, I run a series of experiments unfreezing a combination of layers, and run eval to find the best combination. I also compare this custom classifier against the stock WavLMForSequenceClassification. I sourced the training data from the RAVDESS dataset, comprising of voice actors with a range of emotion and content.
 
 **Tech Stack:** Python · PyTorch · WavLM · Hugging Face Transformers · scikit-learn · SciPy · uv
 
@@ -59,57 +55,28 @@ gain is not a wash of trades.
 I built a RAG pipeline for retrieval of long documents like SEC 10-Ks. I ran 27
 experiments across combinations of chunking strategies (sentence, sliding-window, semantic), embeddings
 (`text-embedding-3-large`, `bge-large`, `bge-small`) and retrieval methods (BM25, dense,
-hybrid/RRF), scoring Recall@K, Precision@K, MRR, MAP, nDCG and latency.
+hybrid/RRF).  Eval metrics include Recall@K, Precision@K, MRR, MAP, nDCG and latency.
 
-Dense retrieval reaches recall@5 of 0.84, against 0.70 for hybrid and 0.58 for BM25, and
-pays 50× the latency for it, 413 ms against 8 ms. The configuration I would actually ship
-is `bge-large`: no API, 110 ms, recall 0.76.
+I generated synthetic QA datasets per chunking configuration with an automated evaluation framework to determine the optimum configuration.
 
 **Tech Stack:** Python · FAISS · OpenAI `text-embedding-3-large` · BGE-large · BM25 · Jupyter
 
 #### [rag-pipeline-research](https://github.com/metzgerdev/rag-pipeline-research) — RAG over arXiv papers
 
-I built a RAG assistant over arXiv papers and evaluated retrieval on `open_ragbench`. It
-runs 12 configurations, 3 chunking strategies × 2 embeddings × 2 retrievers, scored at two
-levels: which paper, and which section within that paper. Answers cite their sources with
-a confidence score, and an LLM judge grades each one from 1 to 5 on relevance, accuracy,
-completeness and citation quality.
-
-The paper-level task turned out to be saturated. All 12 configurations reach recall@5 of
-1.0 and hybrid ties dense exactly, so the grid cannot separate them at that level and the
-differences only appear once I ask which section. The finding worth keeping is about cost:
-`bge-small` matches `bge-large` at 18 ms per query against 40 ms, so the smaller model is
-the one to run.
+I built a RAG-based research assistant ingesting arXiv papers using the `open_ragbench` dataset. Multiple experiments are run with configurations based on 3 chunking strategies × 2 embeddings × 2 retrievers. I use an LLM-as-Judge to evaluate the generated answers based on a four-dimensional rubric. Additionally, a Streamlit web UI allows execution of the entire pipeline.
 
 **Tech Stack:** Python · FAISS · BGE / E5 embeddings · BM25 · OpenAI / OpenRouter · Pydantic · Streamlit
 
 #### [synthetic-data-pipeline](https://github.com/metzgerdev/synthetic-data-pipeline) — synthetic Q&A with a calibrated judge
 
-I built a six-stage pipeline that writes and checks synthetic DIY-repair Q&A: generate,
-quality gate, human review, LLM judge, analysis, iterate. Llama 3.3 70B writes each item
-against a Pydantic schema and semantic dedup drops the near-copies. Seven automated checks
-and six binary dimensions — completeness, safety, tools, scope, clarity, usefulness — gate
-what survives.
-
-The part that matters is the judge. I label a sample by hand first, then tune a
-Llama 3.1 8B judge across four prompt variants until it agrees with my labels on at least
-80% of every dimension, not just on average, because a judge that is right overall can
-still be wrong on the one dimension I care about. Prompts live in SQLite so I can edit
-them while the pipeline runs.
+I built a pipeline for synthetic data generation for a Q&A repair chatbot. The pipeline generates structured repair guidance evaluated for data quality, along with human-in-the-loop labeling. The evaluation metric is LLM-as-Judge agreement with human labeling over six quality dimensions. The generation prompt and judge prompt are iterated until the agreement threshold is met. Visualizations, metrics and log reports are generated to guide prompt adjustment based on empirical observations.
 
 **Tech Stack:** Python · Groq (Llama 3.3 70B / 3.1 8B) · Pydantic · sentence-transformers · SQLite · Streamlit · Matplotlib
 
 #### [llm-resume-coach](https://github.com/metzgerdev/llm-resume-coach) — two scorers on the same rubric
 
-I built a scorer for how well a resume fits a job, with two scorers running side by side
-on the same six binary dimensions: a deterministic labeler you can check by hand, using
-Jaccard skill overlap, years-of-experience gap and seniority rank, and an LLM judge.
-Running both means every disagreement is visible and attributable to one of them, instead
-of trusting a single number.
+I built a resume coach using synthetic data, a rule-based analyzer, and LLM-as-a-Judge evaluation. The system identifies the fit between a resume and job posting, detects quality issues, and provides actionable feedback.
 
-Eleven per-item checks catch bad data before any scoring — broken timelines, implausible
-GPAs, inflated expertise claims. The test set is generated evenly across 5 industries × 5
-fit levels so the evaluation is not weighted toward the easy cases, and every prompt or
-threshold change is logged with before-and-after numbers.
+The evaluation pipeline includes data validation and correlation matrices with heatmaps. The system also exposes an API for running the pipeline.
 
 **Tech Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit

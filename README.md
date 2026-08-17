@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://metzgerdev.github.io/Drum-Machine/#/home"><img src="https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Portfolio"/></a>
+  <a href="https://metzgerdev.github.io/nam-dao/"><img src="https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Portfolio"/></a>
   <a href="https://www.linkedin.com/in/nam-dao"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
 </p>
 
@@ -42,13 +42,6 @@ run inference on CPU in a couple of seconds. It has 0.687M parameters and writes
 in a few seconds.  A 1/16 note grid and drum conditioning results in a tight rythymic lock.
 
 **Tech Stack:** Python · PyTorch · mido · librosa · NumPy · SciPy · uv
-
-#### [vocal-emotion-finetune](https://github.com/metzgerdev/vocal-emotion-finetune) — two-stage fine-tune for vocal emotion
-
-I built a vocal emotion classifier by fine-tuning `microsoft/wavlm-base-plus` in two stages. The first
-stage trains only the classifier head on a frozen encoder, establishing the baseline. For the second stage, I run a series of experiments unfreezing a combination of layers, and run eval to find the best combination. I also compare this custom classifier against the stock WavLMForSequenceClassification. I sourced the training data from the RAVDESS dataset, comprising of voice actors with a range of emotion and content.
-
-**Tech Stack:** Python · PyTorch · WavLM · Hugging Face Transformers · scikit-learn · SciPy · uv
 
 #### [rag-pipeline](https://github.com/metzgerdev/rag-pipeline) — a retrieval test bench for long documents
 

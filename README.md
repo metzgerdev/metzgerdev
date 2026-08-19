@@ -54,7 +54,7 @@ I generated synthetic QA datasets per chunking configuration with an automated e
 
 **Tech Stack:** Python · FAISS · OpenAI `text-embedding-3-large` · BGE-large · BM25 · Jupyter
 
-#### [RAG Research Assistant](https://github.com/metzgerdev/rag-pipeline-research) — RAG over arXiv papers
+#### [RAG Research Assistant](https://github.com/metzgerdev/rag-pipeline-research) — rag over arXiv papers
 
 I built a RAG-based research assistant ingesting arXiv papers using the `open_ragbench` dataset. Multiple experiments are run with configurations based on 3 chunking strategies × 2 embeddings × 2 retrievers. I use an LLM-as-Judge to evaluate the generated answers based on a four-dimensional rubric. Additionally, a Streamlit web UI allows execution of the entire pipeline.
 

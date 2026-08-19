@@ -43,7 +43,7 @@ in a few seconds.  A 1/16 note grid and drum conditioning results in a tight ryt
 
 **Tech Stack:** Python · PyTorch · mido · librosa · NumPy · SciPy · uv
 
-#### [RAG Pipeline](https://github.com/metzgerdev/rag-pipeline) — a retrieval test bench for long documents
+#### [RAG Pipeline](https://github.com/metzgerdev/rag-pipeline) — eval backed rag system
 
 I built a RAG pipeline for retrieval of long documents like SEC 10-Ks. I ran 27
 experiments across combinations of chunking strategies (sentence, sliding-window, semantic), embeddings
@@ -60,13 +60,13 @@ I built a RAG-based research assistant ingesting arXiv papers using the `open_ra
 
 **Tech Stack:** Python · FAISS · BGE / E5 embeddings · BM25 · OpenAI / OpenRouter · Pydantic · Streamlit
 
-#### [Synthetic Data Pipeline](https://github.com/metzgerdev/synthetic-data-pipeline) — synthetic Q&A with a calibrated judge
+#### [Synthetic Data Pipeline](https://github.com/metzgerdev/synthetic-data-pipeline) — synthetic data generation pipeline with LLM-as-Judge
 
 I built a pipeline for synthetic data generation for a Q&A repair chatbot. The pipeline generates structured repair guidance evaluated for data quality, along with human-in-the-loop labeling. The evaluation metric is LLM-as-Judge agreement with human labeling over six quality dimensions. The generation prompt and judge prompt are iterated until the agreement threshold is met. Visualizations, metrics and log reports are generated to guide prompt adjustment based on empirical observations.
 
 **Tech Stack:** Python · Groq (Llama 3.3 70B / 3.1 8B) · Pydantic · sentence-transformers · SQLite · Streamlit · Matplotlib
 
-#### [LLM Resume Coach](https://github.com/metzgerdev/llm-resume-coach) — two scorers on the same rubric
+#### [LLM Resume Coach](https://github.com/metzgerdev/llm-resume-coach) — resume screening system
 
 I built a resume coach using synthetic data, a rule-based analyzer, and LLM-as-a-Judge evaluation. The system identifies the fit between a resume and job posting, detects quality issues, and provides actionable feedback.
 

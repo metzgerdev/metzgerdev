@@ -73,3 +73,9 @@ I built a resume coach using synthetic data, a rule-based analyzer, and LLM-as-a
 The evaluation pipeline includes data validation and correlation matrices with heatmaps. The system also exposes an API for running the pipeline.
 
 **Tech Stack:** Python · Groq (Llama) · Pydantic · REST API · Streamlit
+
+#### [Multi Agent Digital Clone](https://github.com/metzgerdev/digital-clone) — multi-agent system for evidence-grounded responses in a learned voice
+
+I built a multi-agent digital clone that retrieves relevant evidence, drafts an answer in a learned author style, evaluates the result, and routes the response to `send` or `fallback`. The project includes offline grounding evaluation, routing calibration, and a human review UI.
+
+**Tech Stack:** Python · CrewAI · FAISS · Sentence Transformers · OpenRouter · GPT-5.6 Luna
